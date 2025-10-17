@@ -1,5 +1,6 @@
 import Hero from "../components/Hero";
 import BottomSection from "../components/BottomSection";
+import ChatWidget from "../components/ChatWidget";
 const Home = () =>{
 
     return(
@@ -7,7 +8,7 @@ const Home = () =>{
         
         <Hero/>
         <BottomSection/>
-        
+        <ChatWidget/>
         </>
     )}
 
