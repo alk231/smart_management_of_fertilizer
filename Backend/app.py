@@ -1,11 +1,5 @@
 from flask import Flask, request, jsonify
 import pickle
-<<<<<<< HEAD
-import numpy as np
-import random
-
-app = Flask(_name_)
-=======
 import re
 import numpy as np
 import random
@@ -18,7 +12,6 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
->>>>>>> upstream/main
 
 # ---------- Load Models ----------
 model = pickle.load(open("xgb_pipeline.pkl", "rb"))
@@ -30,34 +23,16 @@ soiltype_dict = pickle.load(open("soiltype_dict.pkl", "rb"))
 crop_to_int = {v: k for k, v in croptype_dict.items()}
 soil_to_int = {v: k for k, v in soiltype_dict.items()}
 
-<<<<<<< HEAD
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        data = request.get_json(force=True)
-
-        # Handle environmental data or sensor failure
-        temperature = data.get("Temperature", 28)
-        humidity = data.get("Humidity", 65)
-        moisture = data.get("Moisture", data.get("SoilMoisture", 18))
-
-        # Crop type and soil type from frontend (required)
-        crop_type = int(data['cropType'])
-        soil_type = int(data['soilType'])
-
-        # If NPK sensor fails, assign dummy values
-=======
 # Store the latest crop & soil selected
 latest_selection = {}
 # Store latest sensor readings for /live_data
 latest_sensor_data = {
-    "Temperature": 28,
-    "Humidity": 65,
-    "Moisture": 18,
-    "Nitrogen": 40,
-    "Phosphorus": 25,
-    "Potassium": 15,
+    "Temperature": 0,
+    "Humidity": 0,
+    "Moisture": 0,
+    "Nitrogen": 0,
+    "Phosphorus": 0,
+    "Potassium": 0,
 }
 
 
@@ -75,9 +50,22 @@ def format_points(text):
     return formatted if formatted else ["N/A"]
 
 
+from flask import session
+
+# Make sure you enable sessions
+app.secret_key = "your_secret_key"
+
+
 @app.route("/groq-chat", methods=["POST"])
 def groq_chat():
     user_input = request.json.get("message")
+
+    # Initialize conversation history in session
+    if "history" not in session:
+        session["history"] = []
+
+    # Append the new user message
+    session["history"].append({"role": "user", "content": user_input})
 
     llm = ChatOpenAI(
         base_url="https://api.groq.com/openai/v1",
@@ -97,17 +85,20 @@ You are an assistant that always responds in a clear, structured format for info
 **Example:**
 - Give an example in numbered points if relevant. Otherwise, write "N/A".
 
-Include line breaks between sections. Keep answers very concise, easy to read, and in points with space after each numbered point. For greetings or casual talk, just respond naturally without forcing Explanation or Example.
+Include line breaks between sections. Keep answers concise, easy to read, and in points. For casual talk, respond naturally without forcing Explanation or Example.
 """
 
-    response = llm.invoke(
-        [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_input},
-        ]
-    )
+    # Pass last N messages for context (e.g., last 10)
+    last_messages = session["history"][-10:]
+    llm_input = [{"role": "system", "content": system_prompt}]
+    for msg in last_messages:
+        llm_input.append({"role": msg["role"], "content": msg["content"]})
 
+    response = llm.invoke(llm_input)
     llm_text = response.content.strip()
+
+    # Append bot response to history
+    session["history"].append({"role": "bot", "content": llm_text})
 
     # Plain text for greetings/casual messages
     if "**Answer:**" not in llm_text:
@@ -161,53 +152,10 @@ def predict():
             crop_type if isinstance(crop_type, int) else crop_to_int.get(crop_type, 0)
         )
 
-        # NPK values (random if missing)
->>>>>>> upstream/main
-        nitrogen = data.get("Nitrogen", random.randint(30, 60))
-        phosphorus = data.get("Phosphorus", random.randint(15, 40))
-        potassium = data.get("Potassium", random.randint(10, 35))
+        nitrogen = data.get("Nitrogen", random.randint(35, 45))
+        phosphorus = data.get("Phosphorus", random.randint(15, 25))
+        potassium = data.get("Potassium", random.randint(20, 35))
 
-<<<<<<< HEAD
-        # Encode categorical inputs
-        soil_val = soil_type if isinstance(soil_type, int) else soil_to_int.get(soil_type, 0)
-        crop_val = crop_type if isinstance(crop_type, int) else crop_to_int.get(crop_type, 0)
-
-        # Prepare features in correct order for the model
-        features = np.array([[temperature, humidity, moisture,
-                              soil_val, crop_val, nitrogen, phosphorus, potassium]])
-
-        # Predict fertilizer
-        pred_label = int(model.predict(features)[0])
-        fertilizer = fertname_dict[pred_label]
-
-        # Return JSON with all details for frontend graph/UI
-        return jsonify({
-            "Temperature": temperature,
-            "Humidity": humidity,
-            "Moisture": moisture,
-            "Soil Type": soil_type,
-            "Crop Type": crop_type,
-            "Nitrogen": nitrogen,
-            "Phosphorus": phosphorus,
-            "Potassium": potassium,
-            "predicted_fertilizer": fertilizer
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/')
-def home():
-    return jsonify({
-        "message": "Smart Fertilizer Recommendation API (Test Mode)",
-        "note": "If NPK sensor fails, random dummy values are used for Nitrogen, Phosphorus, Potassium"
-    })
-
-
-if _name_ == '_main_':
-    app.run(debug=True)
-=======
         # Update latest sensor data
         latest_sensor_data.update(
             {
@@ -277,4 +225,3 @@ def home():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
->>>>>>> upstream/main
