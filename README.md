@@ -2,8 +2,7 @@
 
 <div align="center">
 
-![Smart Crop Management Banner](<img width="1568" height="728" alt="image" src="https://github.com/user-attachments/assets/7e858ec6-e933-4e8a-bfa8-7cb8599564e2" />
-)
+![Smart Crop Management Banner](https://github.com/user-attachments/assets/7e858ec6-e933-4e8a-bfa8-7cb8599564e2)
 
 ### *Optimize your crop yield with data-driven insights and recommendations*
 
@@ -212,8 +211,7 @@ The Smart Crop Management dashboard provides an intuitive interface to monitor y
 
 <div align="center">
 
-![Dashboard Banner](<img width="1568" height="728" alt="image" src="https://github.com/user-attachments/assets/c8d4eb65-c4c3-488c-8f6d-6cef6b8e3e36" />
-)
+![Dashboard Banner](https://github.com/user-attachments/assets/7e858ec6-e933-4e8a-bfa8-7cb8599564e2)
 
 *Monitor soil conditions, temperature, and receive AI-powered fertilizer recommendations*
 
