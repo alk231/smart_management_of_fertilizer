@@ -2,7 +2,8 @@
 
 <div align="center">
 
-![Smart Crop Management Banner](fe7f0fe7-ff0e-405f-9fa7-f8559cd01584.png)
+![Smart Crop Management Banner](<img width="1568" height="728" alt="image" src="https://github.com/user-attachments/assets/7e858ec6-e933-4e8a-bfa8-7cb8599564e2" />
+)
 
 ### *Optimize your crop yield with data-driven insights and recommendations*
 
@@ -211,7 +212,8 @@ The Smart Crop Management dashboard provides an intuitive interface to monitor y
 
 <div align="center">
 
-![Dashboard Banner](fe7f0fe7-ff0e-405f-9fa7-f8559cd01584.png)
+![Dashboard Banner](<img width="1568" height="728" alt="image" src="https://github.com/user-attachments/assets/c8d4eb65-c4c3-488c-8f6d-6cef6b8e3e36" />
+)
 
 *Monitor soil conditions, temperature, and receive AI-powered fertilizer recommendations*
 
@@ -366,7 +368,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- 📧 **Email**: support@smartcropmanagement.com
+- 📧 **Email**: kumaralokown@gmail.com
 - 🐛 **Issues**: [GitHub Issues](https://github.com/alk231/smart_management_of_fertilizer/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/alk231/smart_management_of_fertilizer/discussions)
 - 🌐 **Website**: [Coming Soon]
