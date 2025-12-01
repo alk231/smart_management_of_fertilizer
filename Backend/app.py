@@ -3,7 +3,7 @@ import pickle
 import re
 import numpy as np
 import random
-from langchain_openai import ChatOpenAI
+from langchain_perplexity import ChatPerplexity
 from dotenv import load_dotenv
 import os
 from flask_cors import CORS
@@ -67,28 +67,14 @@ def groq_chat():
     # Append the new user message
     session["history"].append({"role": "user", "content": user_input})
 
-    llm = ChatOpenAI(
-        base_url="https://api.groq.com/openai/v1",
-        model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY"),
-    )
+    llm = ChatPerplexity()
 
-    system_prompt = """
-You are an assistant that always responds in a clear, structured format for informative questions. Use the following sections only if they make sense:
+    system_prompt = """You are a helpful assistant. Provide clear, concise answers. 
+For informative questions, structure your response naturally with explanations and examples when relevant and make sure that response is in format.
 
-**Answer:**
-- Main points in numbered format.
+when ask hi,hello,how are you then do not give explanation give generic response like an assistant"""
 
-**Explanation:**
-- Explain the answer in numbered points if applicable. Skip if the question is trivial or conversational.
-
-**Example:**
-- Give an example in numbered points if relevant. Otherwise, write "N/A".
-
-Include line breaks between sections. Keep answers concise, easy to read, and in points. For casual talk, respond naturally without forcing Explanation or Example.
-"""
-
-    # Pass last N messages for context (e.g., last 10)
+    # Pass last 10 messages for context
     last_messages = session["history"][-10:]
     llm_input = [{"role": "system", "content": system_prompt}]
     for msg in last_messages:
@@ -98,30 +84,9 @@ Include line breaks between sections. Keep answers concise, easy to read, and in
     llm_text = response.content.strip()
 
     # Append bot response to history
-    session["history"].append({"role": "bot", "content": llm_text})
+    session["history"].append({"role": "assistant", "content": llm_text})
 
-    # Plain text for greetings/casual messages
-    if "**Answer:**" not in llm_text:
-        return jsonify({"reply": llm_text})
-
-    # Extract structured sections
-    answer_match = re.search(
-        r"\*\*Answer:\*\*\s*(.*?)\s*(\*\*Explanation:\*\*|$)", llm_text, re.DOTALL
-    )
-    explanation_match = re.search(
-        r"\*\*Explanation:\*\*\s*(.*?)\s*(\*\*Example:\*\*|$)", llm_text, re.DOTALL
-    )
-    example_match = re.search(r"\*\*Example:\*\*\s*(.*)", llm_text, re.DOTALL)
-
-    response_json = {
-        "answer": format_points(answer_match.group(1)) if answer_match else ["N/A"],
-        "explanation": (
-            format_points(explanation_match.group(1)) if explanation_match else ["N/A"]
-        ),
-        "example": format_points(example_match.group(1)) if example_match else ["N/A"],
-    }
-
-    return jsonify(response_json)
+    return jsonify({"reply": llm_text})
 
 
 @app.route("/predict", methods=["POST"])
@@ -152,9 +117,9 @@ def predict():
             crop_type if isinstance(crop_type, int) else crop_to_int.get(crop_type, 0)
         )
 
-        nitrogen = data.get("Nitrogen", random.randint(35, 45))
-        phosphorus = data.get("Phosphorus", random.randint(15, 25))
-        potassium = data.get("Potassium", random.randint(20, 35))
+        nitrogen = data.get("Nitrogen", random.randint(12, 22))
+        phosphorus = data.get("Phosphorus", random.randint(10, 25))
+        potassium = data.get("Potassium", random.randint(4, 8))
 
         # Update latest sensor data
         latest_sensor_data.update(

@@ -13,6 +13,8 @@ export default function Analyze() {
   const [moisture, setMoisture] = useState(0);
   const [humidity, setHumidity] = useState(0);
   const [predictedFertilizer, setPredictedFertilizer] = useState(null);
+  const [npkZeroed, setNpkZeroed] = useState(false);
+  const [originalNpk, setOriginalNpk] = useState({ N: 0, P: 0, K: 0 });
 
   const [soilType, setSoilType] = useState("Loamy");
   const [cropType, setCropType] = useState("Wheat");
@@ -31,7 +33,7 @@ export default function Analyze() {
 
   useEffect(() => {
     const fetchLiveData = () => {
-      fetch("http://10.116.113.148:5000/live_data")
+      fetch("http://10.240.144.148:5000/live_data")
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch live data");
           return res.json();
@@ -40,11 +42,15 @@ export default function Analyze() {
           setTemp(data.Temperature);
           setHumidity(data.Humidity);
           setMoisture(data.Moisture);
-          setNpk({
+          const newNpk = {
             N: data.Nitrogen,
             P: data.Phosphorus,
             K: data.Potassium,
-          });
+          };
+          setNpk(newNpk);
+          if (!npkZeroed) {
+            setOriginalNpk(newNpk);
+          }
         })
         .catch((err) => console.error("Error fetching live sensor data:", err));
     };
@@ -58,7 +64,7 @@ export default function Analyze() {
     e.preventDefault();
     const payload = { cropType, soilType };
 
-    fetch("http://10.116.113.148:5000/predict", {
+    fetch("http://10.240.144.148:5000/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -71,11 +77,15 @@ export default function Analyze() {
         setTemp(data.Temperature);
         setHumidity(data.Humidity);
         setMoisture(data.Moisture);
-        setNpk({
+        const newNpk = {
           N: data.Nitrogen,
           P: data.Phosphorus,
           K: data.Potassium,
-        });
+        };
+        setNpk(newNpk);
+        if (!npkZeroed) {
+          setOriginalNpk(newNpk);
+        }
         setPredictedFertilizer(data.predicted_fertilizer);
 
         const record = {
@@ -99,6 +109,16 @@ export default function Analyze() {
 
   function handleClearHistory() {
     setHistory([]);
+  }
+
+  function toggleNpkZero() {
+    if (npkZeroed) {
+      setNpk(originalNpk);
+      setNpkZeroed(false);
+    } else {
+      setNpk({ N: 0, P: 0, K: 0 });
+      setNpkZeroed(true);
+    }
   }
 
   const CircularGauge = ({
@@ -339,6 +359,14 @@ export default function Analyze() {
             </div>
           </section>
         </div>
+
+        <button
+          onClick={toggleNpkZero}
+          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-gray-200 hover:bg-gray-300 opacity-30 flex items-center justify-center text-gray-600"
+          title={npkZeroed ? "Restore NPK" : "Zero NPK"}
+        >
+          <span className="text-xs font-mono">{npkZeroed ? "R" : "0"}</span>
+        </button>
       </div>
     </div>
   );
